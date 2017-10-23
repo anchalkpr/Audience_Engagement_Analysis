@@ -7,16 +7,14 @@
 import cv2
 import dlib
 
-
 import threading
 import time
+import os
 
 #Initialize a face cascade using the frontal face haar cascade provided with
 #the OpenCV library
-#Make sure that you copy this file from the opencv project to the root of this
-#project folder
-#faceCascade = cv2.CascadeClassifier('../haarcascade_frontalface_default.xml')
-faceCascade = cv2.CascadeClassifier('C:\\Users\\Anchal Kapoor\\Documents\\GitHub\\OpenFace\\lib\\3rdParty\\OpenCV3.1\\classifiers\\haarcascade_frontalface_default.xml')
+faceCascade = cv2.CascadeClassifier(os.path.join('..', 'dependencies', 'haarcascade_frontalface_default.xml'))
+output_dir = os.path.join('..', 'output')
 #The deisred output width and height
 OUTPUT_SIZE_WIDTH = 775
 OUTPUT_SIZE_HEIGHT = 600
@@ -26,8 +24,6 @@ OUTPUT_SIZE_HEIGHT = 600
 def doRecognizePerson(faceNames, fid):
     time.sleep(2)
     faceNames[ fid ] = "Person " + str(fid)
-
-
 
 
 def detectAndTrackMultipleFaces():
@@ -241,7 +237,7 @@ def detectAndTrackMultipleFaces():
 
 
                 crop = baseImage[t_y:t_y + t_h, t_x:t_x + t_w].copy()
-                file_name = "face-images//" + str(fid) + ".png"
+                file_name = os.path.join(output_dir, str(fid) + ".png")
                 cv2.imwrite(file_name, crop)
 
 
