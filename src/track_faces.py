@@ -20,6 +20,13 @@ OUTPUT_SIZE_WIDTH = 775
 OUTPUT_SIZE_HEIGHT = 600
 
 
+def del_folder_contents(folder_path):
+    for the_file in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, the_file)
+        if os.path.isfile(file_path):
+            os.unlink(file_path)
+
+
 #We are not doing really face recognition
 def doRecognizePerson(faceNames, fid):
     time.sleep(2)
@@ -271,4 +278,6 @@ def detectAndTrackMultipleFaces():
 
 
 if __name__ == '__main__':
+    del_folder_contents(output_dir)
     detectAndTrackMultipleFaces()
+    del_folder_contents(output_dir)
