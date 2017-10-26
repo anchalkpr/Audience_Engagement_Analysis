@@ -3,34 +3,33 @@
 
 import face_recognition
 import cv2
-import os, shutil
+import os
 import time
+import realtime.comman_utils as comman_utils
 
 ####### CONSTANTS #################
-path_output_dir = os.path.join("..", "output")
+path_output_dir = comman_utils.PATH_CAPTURE_DIR
 UNKNOWN = "unknown"
-DEBUG = True
+DEBUG = comman_utils.DEBUG
 ###################################
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 
-def clean_dir(path):
-    for the_file in os.listdir(path):
-        file_path = os.path.join(path, the_file)
-        if os.path.isfile(file_path):
-            os.unlink(file_path)
-        elif os.path.isdir(file_path):
-            shutil.rmtree(file_path)
-
-
 # Cleanup output directory
-clean_dir(path_output_dir)
+comman_utils.clean_dir(path_output_dir)
+
+os.makedirs(path_output_dir)
 
 # Get a reference to webcam #0 (the default one)
 video_capture = cv2.VideoCapture(0)
+# Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
+# Define the fps to be equal to 10. Also frame size is passed.
+
+capture_video_out = cv2.VideoWriter(comman_utils.PATH_CAPTURE_VIDEO, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (640, 480))
 
 input("Press Enter when you are ready")
 ret, init_frame = video_capture.read()
+capture_video_out.write(init_frame)
 
 init_frame_face_locations = face_recognition.face_locations(init_frame)
 faceid_list = list()
@@ -56,6 +55,9 @@ while True:
     # Grab a single frame of video
     ret, frame = video_capture.read()
 
+    #write frame to output file
+    capture_video_out.write(frame)
+
     # Resize frame of video to 1/4 size for faster face recognition processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
@@ -78,7 +80,7 @@ while True:
 
             face_name_list.append(name)
 
-        # store all the faces in this directory
+        # store all the faces for this frame in this directory
         current_output_dir = os.path.join(path_output_dir, str(current_milli_time()))
         os.makedirs(current_output_dir)
 
@@ -113,10 +115,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release handle to the webcam
+# Release handle to the webcam, output file
 video_capture.release()
+capture_video_out.release()
 cv2.destroyAllWindows()
-
-# Cleanup output directory
-if not DEBUG:
-    clean_dir(path_output_dir)
