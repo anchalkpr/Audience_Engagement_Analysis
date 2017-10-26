@@ -2,3 +2,4 @@
 .idea
 .python-version
 output/
+__pycache__/

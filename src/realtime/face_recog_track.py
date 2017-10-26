@@ -18,14 +18,17 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 # Cleanup output directory
 comman_utils.clean_dir(path_output_dir)
 
-os.makedirs(path_output_dir)
+if not os.path.exists(path_output_dir):
+    os.makedirs(path_output_dir)
 
 # Get a reference to webcam #0 (the default one)
 video_capture = cv2.VideoCapture(0)
+
+height, width, channels = video_capture.read()[1].shape
+
 # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
 # Define the fps to be equal to 10. Also frame size is passed.
-
-capture_video_out = cv2.VideoWriter(comman_utils.PATH_CAPTURE_VIDEO, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (640, 480))
+capture_video_out = cv2.VideoWriter(comman_utils.PATH_CAPTURE_VIDEO, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (width, height))
 
 input("Press Enter when you are ready")
 ret, init_frame = video_capture.read()
