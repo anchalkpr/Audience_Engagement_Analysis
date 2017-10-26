@@ -3,10 +3,11 @@ import shutil
 
 DEBUG = True
 
-PATH_CAPTURE_DIR = os.path.join("..", "output", "capture")
-PATH_CAPTURE_VIDEO = os.path.join("..", "output", "capture_video.avi")
-PATH_ANALYSIS_DIR = os.path.join("..", "output", "capture")
+PATH_CAPTURE_DIR = os.path.join("..", "..", "output", "capture")
+PATH_CAPTURE_VIDEO = os.path.join("..", "..", "output", "capture_video.avi")
+PATH_ANALYSIS_DIR = os.path.join("..", "..", "output", "analysis")
 PATH_OPENFACE_BIN = "/Users/manal/Projects/Tools/OpenFace-master/bin"
+INIT_DIR_NAME = "init"
 
 def clean_dir(path):
     for the_file in os.listdir(path):

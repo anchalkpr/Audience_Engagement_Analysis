@@ -38,8 +38,8 @@ init_frame_face_locations = face_recognition.face_locations(init_frame)
 faceid_list = list()
 face_encodings_list = list()
 
-init_file_output_dir = os.path.join(path_output_dir, "init")
-os.makedirs(init_file_output_dir)
+path_init_dir = os.path.join(path_output_dir, comman_utils.INIT_DIR_NAME)
+os.makedirs(path_init_dir)
 #store faces in a file, find encodings
 for i in range(len(init_frame_face_locations)):
     face_location = init_frame_face_locations[i]
@@ -47,7 +47,7 @@ for i in range(len(init_frame_face_locations)):
 
     face_image = init_frame[top:bottom, left:right]
     face_id = "face_" + str(i)
-    path_file = os.path.join(init_file_output_dir, face_id + ".png")
+    path_file = os.path.join(path_init_dir, face_id + ".png")
 
     cv2.imwrite(path_file, face_image)
     face_encodings_list.append(face_recognition.face_encodings(face_image)[0])
