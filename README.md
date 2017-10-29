@@ -9,11 +9,11 @@
  ## Installation
  ### Windows
  
- [**face_recognition**](https://github.com/ageitgey/face_recognition/issues/175)
+ * [**face_recognition**](https://github.com/ageitgey/face_recognition/issues/175)
  
-1. Download and install scipy and numpy+mkl (must be mkl version) packages from this link (all credits goes to Christoph Gohlke). Remember to grab correct version based on your current Python version.
+1. Download and install `scipy` and `numpy` packages . Remember to grab correct version based on your current Python version.
 2. Download Boost library source code for your current MSVC from [this link](https://sourceforge.net/projects/boost/files/).
-    - Extract the Boost source files into C:\local\boost_1_XX_X (X means the current version of Boost you have)
+    - Extract the Boost source files into C:\local\boost_1_65_1
     - Create a system variable with these parameters:
         * Name: VS140COMNTOOLS    
         * Value: C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\ 
@@ -35,10 +35,10 @@ Go to dlib directory and open cmd and follow these commands to build dlib:
 4. Now simply install face_recognition with pip install face_recognition.
 
 
-**opencv-python**
+* **opencv-python**
 ```
 pip3 install opencv-python
 ```
-**OpenFace**
+* **OpenFace**
 
 Refer [this link](https://github.com/TadasBaltrusaitis/OpenFace/wiki/Windows-Installation)
