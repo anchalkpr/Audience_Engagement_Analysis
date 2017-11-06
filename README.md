@@ -9,7 +9,7 @@
  ## Installation
  ### Windows
  
- * [**face_recognition**](https://github.com/ageitgey/face_recognition/issues/175)
+ [**face_recognition**](https://github.com/ageitgey/face_recognition/issues/175)
  
 1. Download and install `scipy` and `numpy` packages . Remember to grab correct version based on your current Python version.
 2. Download Boost library source code for your current MSVC from [this link](https://sourceforge.net/projects/boost/files/).
@@ -35,10 +35,10 @@ Go to dlib directory and open cmd and follow these commands to build dlib:
 4. Now simply install face_recognition with pip install face_recognition.
 
 
-* **opencv-python**
+**opencv-python**
 ```
 pip3 install opencv-python
 ```
-* **OpenFace**
+**OpenFace**
 
 Refer [this link](https://github.com/TadasBaltrusaitis/OpenFace/wiki/Windows-Installation)
