@@ -8,6 +8,13 @@ PATH_CAPTURE_VIDEO = os.path.join("..", "..", "output", "capture_video.avi")
 PATH_ANALYSIS_DIR = os.path.join("..", "..", "output", "analysis")
 PATH_OPENFACE_BIN =  "C:\\local\\OpenFace_0.2.3_win_x64\\"     #"/Users/manal/Projects/Tools/OpenFace-master/bin"
 INIT_DIR_NAME = "init"
+FACS_HAP = "HAPPINESS"
+FACS_SAD = "SADNESS"
+FACS_SUR = "SURPRISE"
+FACS_FER = "FEAR"
+FACS_ANG = "ANGER"
+FACS_DIS = "DISGUST"
+FACS_CON = "CONTEMPT"
 
 def clean_dir(path):
     for the_file in os.listdir(path):
