@@ -1,4 +1,4 @@
-import realtime.comman_utils as comman_utils
+import comman_utils as comman_utils
 import os, time
 import subprocess
 

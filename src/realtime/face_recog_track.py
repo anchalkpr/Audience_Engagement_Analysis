@@ -5,7 +5,7 @@ import face_recognition
 import cv2
 import os
 import time
-import realtime.comman_utils as comman_utils
+import comman_utils as comman_utils
 
 ####### CONSTANTS #################
 path_output_dir = comman_utils.PATH_CAPTURE_DIR
