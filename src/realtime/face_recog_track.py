@@ -13,7 +13,7 @@ path_output_dir = comman_utils.PATH_CAPTURE_DIR
 UNKNOWN = "unknown"
 DEBUG = comman_utils.DEBUG
 ###################################
-captureTime = input("How long you wanna capture video:");
+captureTime = input("How long you wanna capture video for:");
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 # Cleanup output directory
@@ -125,9 +125,7 @@ while (float(captureTime) > (diff/1000)):
     end_processing_time = lambda: int(time.time() * 1000)
     end_processing_time_ms = end_processing_time()
     diff = end_processing_time_ms - start_processing_time_ms
-    print(diff)
-    # if(float(captureTime) < (diff/1000)):
-    #     break
+
 # Release handle to the webcam, output file
 video_capture.release()
 capture_video_out.release()
