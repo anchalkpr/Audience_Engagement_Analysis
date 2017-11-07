@@ -6,13 +6,14 @@ import cv2
 import os
 import time
 import comman_utils as comman_utils
+import analyze_faces as analyzeFace
 
 ####### CONSTANTS #################
 path_output_dir = comman_utils.PATH_CAPTURE_DIR
 UNKNOWN = "unknown"
 DEBUG = comman_utils.DEBUG
 ###################################
-
+captureTime = input("How long you wanna capture video:");
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 # Cleanup output directory
@@ -54,7 +55,11 @@ for i in range(len(init_frame_face_locations)):
     faceid_list.append(face_id)
 
 process_this_frame = True
-while True:
+#start time
+start_processing_time = lambda: int(time.time() * 1000)
+start_processing_time_ms = start_processing_time()
+diff = 0
+while (float(captureTime) > (diff/1000)):
     # Grab a single frame of video
     ret, frame = video_capture.read()
 
@@ -117,8 +122,17 @@ while True:
     # Hit 'q' on the keyboard to quit!
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
+    end_processing_time = lambda: int(time.time() * 1000)
+    end_processing_time_ms = end_processing_time()
+    diff = end_processing_time_ms - start_processing_time_ms
+    print(diff)
+    # if(float(captureTime) < (diff/1000)):
+    #     break
 # Release handle to the webcam, output file
 video_capture.release()
 capture_video_out.release()
 cv2.destroyAllWindows()
+
+#call analyze_faces
+print("\nVideo is captured")
+analyzeFace.analyze_face_main()
