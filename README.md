@@ -1,4 +1,8 @@
 # Audience Behaviour Analysis 
+### Run using following command
+```sh
+    python face_recog_track.py
+```
 ##  Project TEAM
  - Amit 
  - Anchal 
