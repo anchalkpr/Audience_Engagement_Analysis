@@ -1,4 +1,33 @@
 # Audience Behaviour Analysis 
+### Run using following command
+```sh
+python face_recog_track.py
+How long you wanna capture video for:12
+Press Enter when you are ready
+
+Video is captured
+Generating AU files
+AU calculation started
+
+------------------------Output--------------------------
+FEAR 5.661862734615385
+------------------------Output--------------------------
+ANGER
+2.9991877153846156
+CONTEMPT
+3.5831033076923076
+SADNESS
+1.7732346538461536
+FEAR
+5.661862734615385
+DISGUST
+1.2367517692307692
+HAPPINESS
+3.7495196538461535
+SURPRISE
+3.0184412461538455
+
+```
 ##  Project TEAM
  - Amit 
  - Anchal 
