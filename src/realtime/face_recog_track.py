@@ -5,8 +5,8 @@ import face_recognition
 import cv2
 import os
 import time
-import comman_utils as comman_utils
-import analyze_faces as analyzeFace
+import realtime.comman_utils as comman_utils
+import realtime.analyze_faces as analyzeFace
 
 ####### CONSTANTS #################
 path_output_dir = comman_utils.PATH_CAPTURE_DIR
@@ -25,8 +25,11 @@ if not os.path.exists(path_output_dir):
 # Get a reference to webcam #0 (the default one)
 video_capture = cv2.VideoCapture(0)
 
-height, width, channels = video_capture.read()[1].shape
+FRAME_RATE = video_capture.get(cv2.cv.CV_CAP_PROP_FPS)
+## Define process rate for frames
+process_rate = FRAME_RATE / 4
 
+height, width, channels = video_capture.read()[1].shape
 # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
 # Define the fps to be equal to 10. Also frame size is passed.
 capture_video_out = cv2.VideoWriter(comman_utils.PATH_CAPTURE_VIDEO, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (width, height))
@@ -41,7 +44,7 @@ face_encodings_list = list()
 
 path_init_dir = os.path.join(path_output_dir, comman_utils.INIT_DIR_NAME)
 os.makedirs(path_init_dir)
-#store faces in a file, find encodings
+#store init faces in a file, find encodings
 for i in range(len(init_frame_face_locations)):
     face_location = init_frame_face_locations[i]
     top, right, bottom, left = face_location
@@ -54,12 +57,10 @@ for i in range(len(init_frame_face_locations)):
     face_encodings_list.append(face_recognition.face_encodings(face_image)[0])
     faceid_list.append(face_id)
 
-process_this_frame = True
 #start time
-start_processing_time = lambda: int(time.time() * 1000)
-start_processing_time_ms = start_processing_time()
-diff = 0
-while (float(captureTime) > (diff/1000)):
+start_processing_time_ms = current_milli_time()
+frame_counter = 0
+while (float(captureTime) > (current_milli_time - start_processing_time_ms)/1000):
     # Grab a single frame of video
     ret, frame = video_capture.read()
 
@@ -69,8 +70,7 @@ while (float(captureTime) > (diff/1000)):
     # Resize frame of video to 1/4 size for faster face recognition processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-    # Only process every other frame of video to save time
-    if process_this_frame:
+    if frame_counter%process_rate is 0:
         # Find all the faces and face encodings in the current frame of video
         face_locations = face_recognition.face_locations(small_frame)
         face_encodings = face_recognition.face_encodings(small_frame, face_locations)
@@ -92,28 +92,26 @@ while (float(captureTime) > (diff/1000)):
         current_output_dir = os.path.join(path_output_dir, str(current_milli_time()))
         os.makedirs(current_output_dir)
 
-    process_this_frame = not process_this_frame
+        unknown_counter = 0
+        # Display the results
+        for (top, right, bottom, left), name in zip(face_locations, face_name_list):
+            # Scale back up face locations since the frame we detected in was scaled to 1/4 size
+            top *= 4; right *= 4; bottom *= 4; left *= 4
+            if name is UNKNOWN:
+                name = name + "_" +str(unknown_counter)
+                unknown_counter+=1
+            face_image = frame[top:bottom, left:right]
+            path_file = os.path.join(current_output_dir, name + ".png")
+            cv2.imwrite(path_file, face_image)
 
-    unknown_counter = 0
-    # Display the results
-    for (top, right, bottom, left), name in zip(face_locations, face_name_list):
-        # Scale back up face locations since the frame we detected in was scaled to 1/4 size
-        top *= 4; right *= 4; bottom *= 4; left *= 4
-        if name is UNKNOWN:
-            name = name + "_" +str(unknown_counter)
-            unknown_counter+=1
-        face_image = frame[top:bottom, left:right]
-        path_file = os.path.join(current_output_dir, name + ".png")
-        cv2.imwrite(path_file, face_image)
+            if DEBUG:
+                # Draw a box around the face
+                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
-        if DEBUG:
-            # Draw a box around the face
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-
-            # Draw a label with a name below the face
-            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-            font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+                # Draw a label with a name below the face
+                cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+                font = cv2.FONT_HERSHEY_DUPLEX
+                cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
     if DEBUG:
         # Display the resulting image
@@ -122,9 +120,6 @@ while (float(captureTime) > (diff/1000)):
     # Hit 'q' on the keyboard to quit!
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    end_processing_time = lambda: int(time.time() * 1000)
-    end_processing_time_ms = end_processing_time()
-    diff = end_processing_time_ms - start_processing_time_ms
 
 # Release handle to the webcam, output file
 video_capture.release()
