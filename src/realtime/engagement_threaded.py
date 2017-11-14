@@ -51,6 +51,7 @@ capture_video_out = cv2.VideoWriter(comman_utils.PATH_CAPTURE_VIDEO, cv2.VideoWr
 
 ######## Start Recording Video ###############
 
+'''
 input("Press Enter when you are ready")
 ret, init_frame = video_capture.read()
 capture_video_out.write(init_frame)
@@ -73,6 +74,7 @@ for i in range(len(init_frame_face_locations)):
     cv2.imwrite(path_file, face_image)
     face_encodings_list.append(face_recognition.face_encodings(face_image)[0])
     faceid_list.append(face_id)
+    '''
 
 # function to read frames from the webcam and add it to the queue
 def capture_video():
@@ -111,8 +113,8 @@ def process_frames():
                 bottom *= 4;
                 left *= 4
                 face_image = frame[top:bottom, left:right]
-                face_image_list.append(face_image)
-            Frame_Face_ImageList_Queue.put((timestamp, face_image_list))
+                face_image_list.append((face_image, (top, bottom, left, right)))
+            Frame_Face_ImageList_Queue.put((timestamp, face_image_list, frame))
         except queue.Empty:
             pass
     print("Frames processed: " + str(frames_processed_counter))
@@ -125,16 +127,29 @@ def determine_engagement():
     frame_faces_processed = 0
     while getattr(t, "do_run", True):
         try:
-            timestamp, face_image_list = Frame_Face_ImageList_Queue.get(timeout=1)
+            timestamp, face_image_list, frame = Frame_Face_ImageList_Queue.get(timeout=1)
             frame_faces_processed+=1
             face_image_transformed_list = []
-            for face_image in face_image_list:
+            location_list = []
+            for face_image, top_bottom_left_right in face_image_list:
                 img = np.array(Image.fromarray(face_image).convert('L').resize((100, 100))).flatten()
                 img = (img / 255.0)
                 face_image_transformed_list.append(img)
+                location_list.append(top_bottom_left_right)
             reduced_x = pca.transform(face_image_transformed_list)
             prediction = model.predict(reduced_x)
             engagement = np.mean(prediction)
+
+            for engagement_level, top_bottom_left_right in zip(prediction, location_list):
+                top = top_bottom_left_right[0]
+                bottom = top_bottom_left_right[1]
+                left = top_bottom_left_right[2]
+                right = top_bottom_left_right[3]
+                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+                cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+                font = cv2.FONT_HERSHEY_DUPLEX
+                cv2.putText(frame, str(engagement_level), (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+            cv2.imshow('Video', frame)
             Engagement_Y_Axis_List.append(engagement)
             Engagement_X_Axis_List.append(datetime.datetime.fromtimestamp(timestamp / 1000.0))
         except:
@@ -154,6 +169,7 @@ def display_engagement_level(i):
     sub_plot.clear()
     sub_plot.plot(Engagement_X_Axis_List, Engagement_Y_Axis_List)
 
+cv2.namedWindow("Video")
 # start time
 start_processing_time_ms = current_milli_time()
 
@@ -174,7 +190,7 @@ style.use('fivethirtyeight')
 plot_figure = plt.figure()
 sub_plot = plot_figure.add_subplot(1,1,1)
 ani = animation.FuncAnimation(plot_figure, display_engagement_level, interval=1000)
-plt.show(block=False)
+plt.show()
 
 while (float(captureTime) > (current_milli_time() - start_processing_time_ms)/1000):
     # Hit 'q' on the keyboard to quit!
