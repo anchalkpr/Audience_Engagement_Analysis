@@ -8,7 +8,7 @@ import realtime.comman_utils as comman_utils
 from sklearn.externals import joblib
 from PIL import Image
 import numpy as np
-import datetime
+import datetime, math
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -24,11 +24,12 @@ ENGAGEMENT_CHART_XAXIS_TIME_LIMIT_MIN = 10
 ######## Global Variables ###############
 Frame_Queue = queue.Queue()
 Frame_Face_ImageList_Queue = queue.Queue()
+#Engagement_Values_Tuple_Queue = queue.Queue()
 Engagement_X_Axis_List = list()
 Engagement_Y_Axis_List = list()
 #########################################
 
-captureTime = input("How long you wanna capture video for:");
+#captureTime = input("How long you wanna capture video for:");
 current_milli_time = lambda: int(round(time.time() * 1000))
 
 # Cleanup output directory
@@ -48,6 +49,7 @@ height, width, channels = video_capture.read()[1].shape
 # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
 # Define the fps to be equal to 10. Also frame size is passed.
 capture_video_out = cv2.VideoWriter(comman_utils.PATH_CAPTURE_VIDEO, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (width, height))
+capture_engagement_video_out = cv2.VideoWriter(comman_utils.PATH_ENGAGEMENT_CAPTURE_VIDEO, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'), 10, (width, height))
 
 ######## Start Recording Video ###############
 
@@ -125,6 +127,9 @@ def determine_engagement():
     pca = joblib.load(comman_utils.PATH_PCA_MODEL)
     t = threading.currentThread()
     frame_faces_processed = 0
+    engagement_values = 0
+    time_stamp_values = 0
+    count = 0
     while getattr(t, "do_run", True):
         try:
             timestamp, face_image_list, frame = Frame_Face_ImageList_Queue.get(timeout=1)
@@ -150,11 +155,40 @@ def determine_engagement():
                 font = cv2.FONT_HERSHEY_DUPLEX
                 cv2.putText(frame, str(engagement_level), (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
             cv2.imshow('Video', frame)
-            Engagement_Y_Axis_List.append(engagement)
-            Engagement_X_Axis_List.append(datetime.datetime.fromtimestamp(timestamp / 1000.0))
+            capture_engagement_video_out.write(frame)
+            engagement_values += engagement
+            time_stamp_values += timestamp
+            count += 1
+            if count == 10:
+                engagement_values = engagement_values/10
+                time_stamp_values = math.floor(time_stamp_values/10)
+                Engagement_Y_Axis_List.append(engagement_values)
+                Engagement_X_Axis_List.append(datetime.datetime.fromtimestamp(time_stamp_values / 1000.0))
+                engagement_values = 0
+                time_stamp_values = 0
+                count = 0
         except:
             pass
     print("Frame (for engagement) processed: " + str(frame_faces_processed))
+
+'''
+def process_engagement_model_output():
+    t = threading.currentThread()
+    while getattr(t, "do_run", True):
+        try:
+            if(Engagement_Values_Tuple_Queue.qsize() > 10):
+                y_mean = 0
+                for i in range(10):
+                    engagement, date_time = Engagement_Values_Tuple_Queue.get()
+                    y_mean += engagement
+                    if i == 5:
+                        x_value = datetime
+                y_mean = y_mean/10
+                Engagement_Y_Axis_List.append(y_mean)
+                Engagement_X_Axis_List.append(x_value)
+        except queue.Empty:
+            pass
+'''
 
 # display engagement levels in a graph
 def display_engagement_level(i):
@@ -185,6 +219,10 @@ process_frames_thread.start()
 determine_engagement_thread = threading.Thread(target=determine_engagement)
 determine_engagement_thread.start()
 
+#start a thread to find the average engagement in 10 frames
+#process_enagement_output = threading.Thread(target=process_engagement_model_output)
+#process_enagement_output.start()
+
 #display engagement levels
 style.use('fivethirtyeight')
 plot_figure = plt.figure()
@@ -192,12 +230,16 @@ sub_plot = plot_figure.add_subplot(1,1,1)
 ani = animation.FuncAnimation(plot_figure, display_engagement_level, interval=1000)
 plt.show()
 
-while (float(captureTime) > (current_milli_time() - start_processing_time_ms)/1000):
-    # Hit 'q' on the keyboard to quit!
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-    else:
-        time.sleep(0.5)
+# while (float(captureTime) > (current_milli_time() - start_processing_time_ms)/1000):
+#     # Hit 'q' on the keyboard to quit!
+#     if cv2.waitKey(1) & 0xFF == ord('q'):
+#         break
+#     else:
+#         time.sleep(0.5)
+
+# kill thread the averages engagement over 10 frames
+#process_enagement_output.do_run = False
+#process_enagement_output.join()
 
 #kill engagement thread
 determine_engagement_thread.do_run = False
@@ -214,6 +256,7 @@ capture_video_thread.join()
 # Release handle to the webcam, output file
 video_capture.release()
 capture_video_out.release()
+capture_engagement_video_out.release()
 cv2.destroyAllWindows()
 
 #Video captured.
