@@ -10,8 +10,10 @@ PATH_ENGAGEMENT_CAPTURE_VIDEO = os.path.join("..", "..", "output", "capture_vide
 PATH_ANALYSIS_DIR = os.path.join("..", "..", "output", "analysis")
 
 # Engagement model paths
-PATH_ENGAGEMENT_MODEL = os.path.join('..', 'models', 'binary_500pca_008C.pkl')
-PATH_PCA_MODEL = os.path.join('..', 'models', 'binary_pca_500.pkl')
+#PATH_ENGAGEMENT_MODEL = os.path.join('..', 'models', 'binary_500pca_008C.pkl')
+#PATH_PCA_MODEL = os.path.join('..', 'models', 'binary_pca_500.pkl')
+PATH_ENGAGEMENT_MODEL = os.path.join('..', 'models', '800hog_01C.pkl')
+PATH_PCA_MODEL = os.path.join('..', 'models', '800kbest_mutual_inf.pkl')
 
 #OpenFace path
 PATH_OPENFACE_BIN =  "C:\\local\\OpenFace_0.2.3_win_x64\\"     #"/Users/manal/Projects/Tools/OpenFace-master/bin"

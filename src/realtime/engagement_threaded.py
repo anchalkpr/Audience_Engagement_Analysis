@@ -10,6 +10,9 @@ from PIL import Image
 import numpy as np
 import datetime, math
 
+from skimage.feature import hog
+#from sklearn.feature_selection import SelectKBest
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib import style
@@ -85,7 +88,7 @@ def capture_video():
     frames_captured = 0
     while getattr(t, "do_run", True):
         ret, frame = video_capture.read()
-        if ret and frame_counter%2==0:
+        if ret and frame_counter%4==0:
             Frame_Queue.put((current_milli_time(), frame))
             frames_captured+=1
         frame_counter+=1
@@ -124,7 +127,8 @@ def process_frames():
 #function to determine engagement level
 def determine_engagement():
     model = joblib.load(comman_utils.PATH_ENGAGEMENT_MODEL)
-    pca = joblib.load(comman_utils.PATH_PCA_MODEL)
+    #pca = joblib.load(comman_utils.PATH_PCA_MODEL)
+    selectKBest = joblib.load(comman_utils.PATH_PCA_MODEL)
     t = threading.currentThread()
     frame_faces_processed = 0
     engagement_values = 0
@@ -136,24 +140,34 @@ def determine_engagement():
             frame_faces_processed+=1
             face_image_transformed_list = []
             location_list = []
-            for face_image, top_bottom_left_right in face_image_list:
-                img = np.array(Image.fromarray(face_image).convert('L').resize((100, 100))).flatten()
-                img = (img / 255.0)
-                face_image_transformed_list.append(img)
-                location_list.append(top_bottom_left_right)
-            reduced_x = pca.transform(face_image_transformed_list)
-            prediction = model.predict(reduced_x)
-            engagement = np.mean(prediction)
+            engagement = 0
+            if(len(face_image_list) > 0):
+                for face_image, top_bottom_left_right in face_image_list:
+                    #img = np.array(Image.fromarray(face_image).convert('L').resize((100, 100))).flatten()
+                    img = np.array(Image.fromarray(face_image).convert('L').resize((100, 100)))
+                    fd1 = hog(img, orientations=9, pixels_per_cell=(5, 5),
+                              cells_per_block=(2, 2), block_norm='L2')
+                    fd2 = hog(img, orientations=9, pixels_per_cell=(100, 100),
+                              cells_per_block=(1, 1))
+                    fd = np.hstack((fd1, fd2))
+                    #img = (img / 255.0)
+                    #face_image_transformed_list.append(img)
+                    face_image_transformed_list.append(fd)
+                    location_list.append(top_bottom_left_right)
+                #reduced_x = pca.transform(face_image_transformed_list)
+                reduced_x = selectKBest.transform(face_image_transformed_list)
+                prediction = model.predict(reduced_x)
+                engagement = np.mean(prediction)
 
-            for engagement_level, top_bottom_left_right in zip(prediction, location_list):
-                top = top_bottom_left_right[0]
-                bottom = top_bottom_left_right[1]
-                left = top_bottom_left_right[2]
-                right = top_bottom_left_right[3]
-                cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-                cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-                font = cv2.FONT_HERSHEY_DUPLEX
-                cv2.putText(frame, str(engagement_level), (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+                for engagement_level, top_bottom_left_right in zip(prediction, location_list):
+                    top = top_bottom_left_right[0]
+                    bottom = top_bottom_left_right[1]
+                    left = top_bottom_left_right[2]
+                    right = top_bottom_left_right[3]
+                    cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+                    cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+                    font = cv2.FONT_HERSHEY_DUPLEX
+                    cv2.putText(frame, str(engagement_level), (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
             cv2.imshow('Video', frame)
             capture_engagement_video_out.write(frame)
             engagement_values += engagement
