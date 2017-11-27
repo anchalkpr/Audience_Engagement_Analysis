@@ -31,8 +31,8 @@ SURPRISE
 ##  Project TEAM
  - Amit 
  - Anchal 
- - Chanuvas
- - Juang
+ - Chanuwas
+ - Juan
  - Manal
  
  ## Installation
