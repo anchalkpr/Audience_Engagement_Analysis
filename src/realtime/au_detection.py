@@ -1,6 +1,6 @@
 import csv
 import os
-import comman_utils as comman_utils
+import realtime.comman_utils as comman_utils
 main_content = dict()
 rowList = []
 au_list = []
