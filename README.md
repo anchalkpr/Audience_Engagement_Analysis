@@ -1,6 +1,6 @@
 # Real-time Audience Engagement Analysis
 
-##Overview
+## Overview
 Often, presenters might benefit from audience engagement feedback during a presentation. This feedback is always given after, if at all.
 Live feedback will ultimately strengthen the relationship between orator and listener, ensuring that the presentation content is well delivered.
 Engagement analysis can be used in various audience settings:
@@ -12,21 +12,21 @@ We explored two methods to determine and classify engagement level:
 1. Using action units and gaze pattern
 2. Using a machine learning model
 
-###Using action units and gaze
+### Using action units and gaze
 Initial approach: Use OpenFace to extract action units and gaze movements 
 Bottlenecks:
 - No Java or Python port/support for OpenFace
 - Considerable latency between frame capture and OpenFace analysis
 - No concrete research mapping action units and gaze to engagement levels 
 
-###Using a machine learning model
+### Using a machine learning model
 Reference Paper 
 - Publicly available dataset that captures the nuances of real-world settings in a manner that doesn’t put constraints on subjects
 - The dataset provides labels of engagement levels that are obtained using a wider voter base
 - Use HoG (histogram of oriented gradients) with 100x100 window size and 31 orientations as the features
 - Instance weighted multiple kernel Support Vector Machine (MKL-SVM)
 
-####Feature representations:
+#### Feature representations:
 - Principal Component Analysis (PCA) with 350, 500 components to extract eigenfaces
     - 350 components: center face images 
     - 500 components: center and rescale face images from [0, 255] to [0, 1]
